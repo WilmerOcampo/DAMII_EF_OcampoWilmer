@@ -22,7 +22,6 @@ class RegisterViewController: UIViewController {
         super.viewDidLoad()
     }
     
-    
     @IBAction func registerAction(_ sender: Any) {
         let fullname = fullname.text!
         let dni = dni.text!
@@ -34,10 +33,7 @@ class RegisterViewController: UIViewController {
         let descrip = descrip.text!
         
         self.registerData(fullname: fullname, dni: dni, email: email, product: product, place: place, store: store, complaint: complaint, descrip: descrip)
-        
-        //self.goToHome()
     }
-
 }
 
 extension RegisterViewController {
@@ -59,18 +55,17 @@ extension RegisterViewController {
         do {
             try context.save()
             self.goToHome()
-            //self.crimeList.append(entity)
         } catch let error as NSError {
             print(error)
         }
-        //self.crimeTableView.reloadData()
     }
-    
+}
+
+extension RegisterViewController {
     func goToHome(){
         let stoyboard = UIStoryboard(name: "Main", bundle: nil)
         let view = stoyboard.instantiateViewController(withIdentifier: "HomeView") as! HomeViewController
         view.modalPresentationStyle = .fullScreen
         present(view, animated: true)
     }
-    
 }

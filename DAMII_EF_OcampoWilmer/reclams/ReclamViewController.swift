@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ReclamViewController: UIViewController, UITableViewDataSource {
+class ReclamViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     @IBOutlet weak var reclamTableView: UITableView!
     var reclamList: [ReclamEntity] = []
@@ -15,6 +15,7 @@ class ReclamViewController: UIViewController, UITableViewDataSource {
     override func viewDidLoad() {
         super.viewDidLoad()
         reclamTableView.dataSource = self
+        reclamTableView.delegate = self
         self.findAllData()
     }
     
@@ -24,19 +25,10 @@ class ReclamViewController: UIViewController, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "reclamCell", for: indexPath) as! ReclamTableViewCell
-        
         let reclam = reclamList[indexPath.row]
-      
-        let dateFormatter = DateFormatter()
         
-        dateFormatter.dateFormat = "dd/MM/yyyy"
-        let dateString = dateFormatter.string(from: reclam.datetime ?? Date())
-        cell.dateLabel.text = "\(dateString)"
-        
-        dateFormatter.dateFormat = "HH:mm"
-        let timeString = dateFormatter.string(from: reclam.datetime ?? Date())
-        cell.timeLabel.text = "\(timeString)"
-        
+        cell.dateLabel.text = DateFormatter.formatDate(reclam.datetime)
+        cell.timeLabel.text = DateFormatter.formatTime(reclam.datetime)
         cell.fullnameLabel.text = "\(reclam.fullname ?? "")"
         cell.dniLabel.text = "\(reclam.dni ?? "")"
         cell.complaintLabel.text = "DENUNCIA: \(reclam.complaint ?? "")"
@@ -45,9 +37,41 @@ class ReclamViewController: UIViewController, UITableViewDataSource {
         cell.placeLabel.text = "Lugar: \(reclam.place ?? "")"
         
         return cell
-        
     }
-
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedReclam = reclamList[indexPath.row]
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        
+        if let detail = storyboard.instantiateViewController(withIdentifier: "detailView") as? DetailViewController {
+            detail.reclam = selectedReclam
+            detail.reclamList = reclamList
+            detail.indexPath = indexPath
+            
+            goToDetail(detail: detail)
+        }
+    }
+    
+    func goToDetail(detail: DetailViewController) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let detailNav = storyboard.instantiateViewController(withIdentifier: "DetailNavView") as? UINavigationController {
+            if let detailView = detailNav.viewControllers.first as? DetailViewController {
+                detailView.reclam = detail.reclam
+                detailView.reclamList = detail.reclamList
+                detailView.indexPath = detail.indexPath
+            }
+            
+            detailNav.modalPresentationStyle = .fullScreen
+            present(detailNav, animated: true, completion: nil)
+        }
+    }
+    
+    func goToDetail(){
+        let stoyboard = UIStoryboard(name: "Main", bundle: nil)
+        let view = stoyboard.instantiateViewController(withIdentifier: "DetailNavView") as! DetailNavViewController
+        view.modalPresentationStyle = .fullScreen
+        present(view, animated: true)
+    }
 }
 
 extension ReclamViewController {
